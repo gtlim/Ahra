@@ -101,8 +101,8 @@ int main(int argc, char** argv) {
   Datum datum;
   int count = 0;
   int data_size = 0;
-  bool data_size_initialized = false;
-
+  bool data_size_initialized = false; 
+  
   for (int line_id = 0; line_id < lines.size(); ++line_id) {
     bool status;
     std::string enc = encode_type;

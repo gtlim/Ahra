@@ -50,9 +50,10 @@ int main(int argc, char **argv) {
    int  rc;
    sqlite3 *db;
    char *sq;
+   char *zErrMsg = 0;
   /*create table information*/
   /* Open database */
-   rc = sqlite3_open("argv[4]", &db);
+   rc = sqlite3_open(argv[3], &db);
    if( rc ){
       fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
       exit(0);
@@ -62,10 +63,10 @@ int main(int argc, char **argv) {
 
    /* Create SQL statement */
    sq  = "CREATE TABLE Images("  \
-         "ID INT PRIMARY KEY     NOT NULL," \
-         "Data           BLOB    NOT NULL," \
-         "Label          INT     NOT NULL," \
-         "Tag            INT     NOT NULL );";
+         "ID INT PRIMARY KEY," \
+         "Data           BLOB," \
+         "Label          INT," \
+         "Tag            INT);";
 
   /* Execute SQL statement */
   rc = sqlite3_exec(db, sq, 0, 0, 0);
@@ -76,19 +77,32 @@ int main(int argc, char **argv) {
   }else{
     LOG(INFO) << "Table created successfully";
   }
+  sqlite3_close(db);
+  char *err_msg = 0;    
+  rc = sqlite3_open(argv[3], &db);
+  if (rc != SQLITE_OK) {
+      LOG(INFO) << "Cannot open database: " << sqlite3_errmsg(db);
+      sqlite3_close(db);         
+      return 1;
+  } else { 
+       LOG(INFO) << "Opened database successfully";
+  }
+  
   vector<string> fname;
   vector<int> label;
-  const  string& source = argv[3];
+  const  string& source = argv[2]; 
+  LOG(INFO) << "Open source: " << argv[2];
   std::ifstream infile(source.c_str());
   string filename;
-  int label;
-  while (infile >> filename >> label) {
+  int label_;
+  while (infile >> filename >> label_) {
     fname.push_back(filename);
-    label.push_back(label);
+    label.push_back(label_);
   }    
   LOG(INFO) <<"Total Images: " <<  fname.size();
   for(int i = 0 ; i < fname.size() ;i++) {
     FILE *fp = fopen(fname[i].c_str(), "rb");
+    LOG(INFO) << i;
     if (fp == NULL) { 
         LOG(WARNING)<< "Cannot open image file";    
     }    
@@ -114,15 +128,15 @@ int main(int argc, char **argv) {
         LOG(WARNING)<< "Cannot close file handler";
     }   
     /*char *err_msg = 0;    
-    int rc = sqlite3_open(argv[4], &db);
+    int rc = sqlite3_open(argv[3], &db);
     if (rc != SQLITE_OK) {
         LOG(INFO) << "Cannot open database: " << sqlite3_errmsg(db);
         sqlite3_close(db);        
         return 1;
     } else { 
-        LOG(INFO) << "Opened database successfully";
+        //LOG(INFO) << "Opened database successfully";
     }*/
-    
+   
     
     sqlite3_stmt *pStmt;
 
@@ -140,7 +154,7 @@ int main(int argc, char **argv) {
     
     if (rc != SQLITE_DONE) {
         
-        printf("execution failed: %s", sqlite3_errmsg(db));
+        LOG(INFO) << "execution failed: " <<  sqlite3_errmsg(db);
     }
     /* query is always Images */ 
     char query[100];
@@ -156,5 +170,8 @@ int main(int argc, char **argv) {
     //sqlite3_close(db);
  }
  sqlite3_close(db);
+#else
+  LOG(FATAL) << "This tool requires OpenCV; compile with USE_OPENCV.";
+#endif  // USE_OPENCV
  return 0;
 }

@@ -28,6 +28,7 @@ class Transaction {
   Transaction() { }
   virtual ~Transaction() { }
   virtual void Put(const string& key, const string& value) = 0;
+  virtual void Update(const string& key, const string& value){}
   virtual void Commit() = 0;
 
   DISABLE_COPY_AND_ASSIGN(Transaction);
