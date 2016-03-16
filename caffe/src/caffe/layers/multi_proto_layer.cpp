@@ -112,7 +112,10 @@ void MultiProtoLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
   if (this->param_propagate_down_[0]) {
      // Gradient with respect to category proto types
-     caffe_copy(top[0]->count(),top[0]->cpu_diff(),this->blobs_[0]->mutable_cpu_diff());
+     Blob<Dtype> NewBlob(this->blobs_[0]->shape());
+     caffe_set(NewBlob.count(), Dtype(0), NewBlob.mutable_cpu_data());
+     caffe_add(top[0]->count(),top[0]->cpu_diff(),this->blobs_[0]->cpu_diff(),NewBlob.mutable_cpu_data());
+     caffe_copy(top[0]->count(),NewBlob.cpu_data(),this->blobs_[0]->mutable_cpu_diff());
   }
 }
 

@@ -26,7 +26,10 @@ void MultiProtoLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
   if (this->param_propagate_down_[0]) {
      // Gradient with respect to category proto types
-     caffe_copy(top[0]->count(),top[0]->gpu_diff(),this->blobs_[0]->mutable_gpu_diff());
+     Blob<Dtype> NewBlob(this->blobs_[0]->shape());
+     caffe_gpu_set(NewBlob.count(), Dtype(0), NewBlob.mutable_gpu_data());
+     caffe_gpu_add(top[0]->count(),top[0]->gpu_diff(),this->blobs_[0]->gpu_diff(),NewBlob.mutable_gpu_data());
+     caffe_copy(top[0]->count(),NewBlob.gpu_data(),this->blobs_[0]->mutable_gpu_diff());
   }
 }
 

@@ -154,6 +154,9 @@ message SolverParameter {
   // accumulate gradients over `iter_size` x `batch_size` instances
   optional int32 iter_size = 36 [default = 1];
 
+  // this is for mode incremental learning or just learning.
+  optional string mode = 41 [ default = "normal"];
+
   // The learning rate decay policy. The currently implemented learning rate
   // policies are as follows:
   //    - fixed: always return base_lr.
@@ -398,11 +401,48 @@ message LayerParameter {
   optional MultiProtoParameter multi_proto_param = 150;
   optional LinearTransformParameter linear_transform_param = 151;
   optional MultiAccuracyParameter multi_accuracy_param = 152;
-  optional spLmeLossParameter splme_loss_param = 153;
   optional PoseDataParameter pose_data_param = 154;
   optional PoseAccuracyParameter pose_accuracy_param = 155;
+  optional LmeLossParameter lme_loss_param = 156;
+  optional IncrementalDataParameter incremental_data_param = 157;
 }
 
+message IncrementalDataParameter {
+  // Specify the data source.
+  optional string source = 1;
+  // Specify the batch size.
+  optional uint32 batch_size = 4 [default = 1];
+  // The rand_skip variable is for the data layer to skip a few data points
+  // to avoid all asynchronous sgd clients to start at the same point. The skip
+  // point would be set as rand_skip * rand(0,1). Note that rand_skip should not
+  // be larger than the number of keys in the database.
+  optional uint32 rand_skip = 7 [default = 0];
+  // Whether or not ImageLayer should shuffle the list of files at every epoch.
+  optional bool shuffle = 8 [default = false];
+  // It will also resize images if new_height or new_width are not zero.
+  optional uint32 new_height = 9 [default = 0];
+  optional uint32 new_width = 10 [default = 0];
+  // Specify if the images are color or gray
+  optional bool is_color = 11 [default = true];
+  // DEPRECATED. See TransformationParameter. For data pre-processing, we can do
+  // simple scaling and subtracting the data mean, if provided. Note that the
+  // mean subtraction is always carried out before scaling.
+  optional float scale = 2 [default = 1];
+  optional string mean_file = 3;
+  // DEPRECATED. See TransformationParameter. Specify if we would like to randomly
+  // crop an image.
+  optional uint32 crop_size = 5 [default = 0];
+  // DEPRECATED. See TransformationParameter. Specify if we want to randomly mirror
+  // data.
+  optional bool mirror = 6 [default = false];
+  optional string db = 12 [default = ""];
+  optional string table = 13 [default = ""];
+}
+
+message LmeLossParameter {
+  optional int32 margin = 1 [default = 1];
+  optional int32 thresh = 2 [default = 0];
+}
 message PoseAccuracyParameter {
   optional uint32 top_k = 1 [default = 1];
   optional int32 axis = 2 [default = 1];
@@ -441,16 +481,6 @@ message PoseDataParameter {
   optional string root_folder = 12 [default = ""];
 }
 
-message spLmeLossParameter {
-
- optional float margin = 1 [default = 0.1];
- optional string version = 2 [default = "pair"];
- optional float sp_margin = 3  [default = 0];
- optional float inner_margin = 4  [default = 0];
- optional float lambda = 5  [default = 1];
- optional bool verbose = 6  [default = false];
-
-}
 
 message MultiAccuracyParameter {
 

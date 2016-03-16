@@ -193,7 +193,9 @@ void Solver<Dtype>::InitTestNets() {
 template <typename Dtype>
 void Solver<Dtype>::Step(int iters) {
   const int start_iter = iter_;
-  const int stop_iter = iter_ + iters;
+  int stop_iter = iter_ + iters;
+  if(iters == -1) stop_iter = 1/0.0;
+  LOG(INFO) <<"Stop_iter: " << stop_iter;
   int average_loss = this->param_.average_loss();
   losses_.clear();
   smoothed_loss_ = 0;
@@ -290,7 +292,12 @@ void Solver<Dtype>::Solve(const char* resume_file) {
   // For a network that is trained by the solver, no bottom or top vecs
   // should be given, and we will just provide dummy vecs.
   int start_iter = iter_;
-  Step(param_.max_iter() - iter_);
+  // this is for incremental learning basically learns forever.
+  if( param_.mode() == "incremental") {
+   Step(-1);
+  } else if( param_.mode() == "normal") {
+   Step(param_.max_iter() - iter_);
+  }
   // If we haven't already, save a snapshot after optimization, unless
   // overridden by setting snapshot_after_train := false
   if (param_.snapshot_after_train()
