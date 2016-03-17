@@ -25,6 +25,7 @@ class LMDBCursor : public Cursor {
     mdb_txn_abort(mdb_txn_);
   }
   virtual void SeekToFirst() { Seek(MDB_FIRST); }
+  virtual void SeekToLast() { Seek(MDB_LAST); }
   virtual void Next() { Seek(MDB_NEXT); }
   virtual string key() {
     return string(static_cast<const char*>(mdb_key_.mv_data), mdb_key_.mv_size);
@@ -58,6 +59,7 @@ class LMDBTransaction : public Transaction {
     : mdb_dbi_(mdb_dbi), mdb_txn_(mdb_txn) { }
   virtual void Put(const string& key, const string& value);
   virtual void Update(const string& key, const string& value);
+  virtual string Get(const string& key);
   virtual void Commit() { MDB_CHECK(mdb_txn_commit(mdb_txn_)); }
 
  private:

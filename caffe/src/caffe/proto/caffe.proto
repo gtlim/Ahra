@@ -26,7 +26,8 @@ message BlobProto {
 message BlobProtoVector {
   repeated BlobProto blobs = 1;
 }
-
+// We add Tag flag for distinguish seen and useen.
+// this is for category Expansion.
 message Datum {
   optional int32 channels = 1;
   optional int32 height = 2;
@@ -38,6 +39,8 @@ message Datum {
   repeated float float_data = 6;
   // If true data contains an encoded image that need to be decoded
   optional bool encoded = 7 [default = false];
+  // Optionally, distinguish unseen and seen data type when it's unlabeled.
+  optional int32 tag = 8 [default = -1];
 }
 
 message FillerParameter {

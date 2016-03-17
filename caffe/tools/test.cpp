@@ -54,12 +54,16 @@ int main(int argc, char** argv) {
   shared_ptr<db::Cursor> cursor(db->NewCursor());  
   scoped_ptr<db::Transaction> txn(db->NewTransaction());
   Datum datum;
+   
   db::Cursor* c = cursor.get();
-  //LOG(INFO) << c->valid();
+  c->SeekToLast();
+  //c->Next();
+  //c->SeekToLast();
+  LOG(INFO) << c->valid();
   datum.ParseFromString(c->value());
   string key_str = c->key();
-  LOG(INFO) << key_str;
-  LOG(INFO) << datum.label();
+  LOG(INFO) <<"Key:" << key_str;
+  LOG(INFO) <<"Label:" << datum.label();
   datum.set_label(-1);
   LOG(INFO) << datum.label();
   string out;
@@ -74,8 +78,12 @@ int main(int argc, char** argv) {
   
   //check data is change or not.
   for(int i = 0 ; i < 10; i++) LOG(INFO) << int(data[i]);
-  txn->Update(key_str, out);
-  txn->Commit();
+  //txn->Update(key_str, out);
+  //txn->Commit();
+  string str = "22";
+  string val = txn->Get(str);
+  datum.ParseFromString(val);
+  LOG(INFO) <<"Retrieved:" << datum.label();
  
 #else
   LOG(FATAL) << "This tool requires OpenCV; compile with USE_OPENCV.";

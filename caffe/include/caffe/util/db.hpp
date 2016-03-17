@@ -15,6 +15,7 @@ class Cursor {
   Cursor() { }
   virtual ~Cursor() { }
   virtual void SeekToFirst() = 0;
+  virtual void SeekToLast(){};
   virtual void Next() = 0;
   virtual string key() = 0;
   virtual string value() = 0;
@@ -29,6 +30,7 @@ class Transaction {
   virtual ~Transaction() { }
   virtual void Put(const string& key, const string& value) = 0;
   virtual void Update(const string& key, const string& value){}
+  virtual string Get(const string& key){ return "NONE";}
   virtual void Commit() = 0;
 
   DISABLE_COPY_AND_ASSIGN(Transaction);
