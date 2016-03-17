@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
   scoped_ptr<db::Transaction> txn(db->NewTransaction());
   Datum datum;
   db::Cursor* c = cursor.get();
-  LOG(INFO) << c->valid();
+  //LOG(INFO) << c->valid();
   datum.ParseFromString(c->value());
   string key_str = c->key();
   LOG(INFO) << key_str;
@@ -64,19 +64,16 @@ int main(int argc, char** argv) {
   LOG(INFO) << datum.label();
   string out;
   CHECK(datum.SerializeToString(&out));
-  char* imageName = "sss";
-  namedWindow( "Gray image", CV_WINDOW_AUTOSIZE );
-  /*const string& data = datum.data();
-  LOG(INFO) << data.size();
-  std::vector<uchar> vec_data(data.c_str(), data.c_str() + data.size());
-  Mat cv_img_origin = cv::imdecode(vec_data,CV_LOAD_IMAGE_COLOR);
-  //Mat cv_img;
-  //int width = 256;
-  //int height = 256;
-  //cv::resize(cv_img_origin, cv_img, cv::Size(width, height));*/
-  Mat cv_img_origin = DecodeDatumToCVMat(datum, 1);
-  imshow( imageName, cv_img_origin );
-  waitKey(0);
+  const string& data = datum.data();
+  //LOG(INFO) << data.size();
+  // encode img when put in lmdb.
+  //Mat cv_img_origin = DecodeDatumToCVMat(datum, 1);
+  //LOG(INFO) << cv_img_origin.channels() << " " << cv_img_origin.rows << " " << cv_img_origin.cols;
+  //imshow( imageName, cv_img_origin );
+  //waitKey(0);
+  
+  //check data is change or not.
+  for(int i = 0 ; i < 10; i++) LOG(INFO) << int(data[i]);
   txn->Update(key_str, out);
   txn->Commit();
  
