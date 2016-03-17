@@ -22,6 +22,18 @@ DB* GetDB(DataParameter::DB backend) {
   }
 }
 
+DB* GetDB(IncrementalDataParameter::DB backend) {
+  switch (backend) {
+#ifdef USE_LMDB
+  case IncrementalDataParameter_DB_LMDB:
+    return new LMDB();
+#endif  // USE_LMDB
+  default:
+    LOG(FATAL) << "Unknown database backend";
+    return NULL;
+  }
+}
+
 DB* GetDB(const string& backend) {
 #ifdef USE_LEVELDB
   if (backend == "leveldb") {

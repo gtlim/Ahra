@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 
 
   // Create new DB
-  scoped_ptr<db::DB> db(db::GetDB("lmdb"));
+  shared_ptr<db::DB> db = shared_ptr<db::DB>((db::GetDB("lmdb")));
   //scoped_ptr<db::DB> db2(db::GetDB("lmdb"));
   db->Open(argv[1], db::WRITE);
   //db2->Open(argv[1], db::WRITE);
